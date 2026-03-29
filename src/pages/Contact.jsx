@@ -1,4 +1,37 @@
-function Contact() {
+import { useState } from 'react'
+
+function Contact({ onSubmit }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: '',
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData((current) => ({ ...current, [name]: value }))
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setErrorMessage('')
+    setSuccessMessage('')
+
+    try {
+      await onSubmit(formData)
+      setSuccessMessage('Your message has been sent.')
+      setFormData({ name: '', email: '', message: '' })
+    } catch (error) {
+      setErrorMessage(error.message || 'Unable to send your message')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <section className="page page-contact">
       <section className="split-panel">
@@ -6,8 +39,7 @@ function Contact() {
           <p className="section-tag">Contact us</p>
           <h2>Talk to the EcoRide team about campuses, companies, or pilot launches.</h2>
           <p>
-            This interface is static for now, but the page layout is ready for real support,
-            partnerships, and onboarding flows.
+            This interface is ready for real support, partnerships, and onboarding conversations.
           </p>
 
           <div className="contact-cards">
@@ -26,22 +58,45 @@ function Contact() {
           </div>
         </div>
 
-        <form className="form-card">
+        <form className="form-card" onSubmit={handleSubmit}>
           <h3>Send a message</h3>
           <label>
             Full name
-            <input type="text" placeholder="Enter your name" />
+            <input
+              name="name"
+              type="text"
+              placeholder="Enter your name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
           </label>
           <label>
             Email address
-            <input type="email" placeholder="Enter your email" />
+            <input
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
           </label>
           <label>
             Message
-            <textarea rows="5" placeholder="Tell us about your commuting project" />
+            <textarea
+              name="message"
+              rows="5"
+              placeholder="Tell us about your commuting project"
+              value={formData.message}
+              onChange={handleChange}
+              required
+            />
           </label>
-          <button className="primary-btn" type="button">
-            Submit enquiry
+          {errorMessage ? <p className="form-message form-error">{errorMessage}</p> : null}
+          {successMessage ? <p className="form-message form-success">{successMessage}</p> : null}
+          <button className="primary-btn" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Sending...' : 'Submit enquiry'}
           </button>
         </form>
       </section>

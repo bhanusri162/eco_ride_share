@@ -35,7 +35,8 @@ body {
 body,
 button,
 input,
-textarea {
+textarea,
+select {
   font-family: 'Avenir Next', 'Segoe UI', sans-serif;
 }
 
@@ -52,7 +53,8 @@ p {
 
 button,
 input,
-textarea {
+textarea,
+select {
   outline: none;
 }
 

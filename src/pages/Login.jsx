@@ -1,6 +1,33 @@
+import { useState } from 'react'
 import { dashboardCards } from '../data/siteContent.js'
 
 function Login({ onSubmit, onOpenRegister }) {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData((current) => ({ ...current, [name]: value }))
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setErrorMessage('')
+
+    try {
+      await onSubmit(formData)
+    } catch (error) {
+      setErrorMessage(error.message || 'Unable to log in')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <section className="page page-auth">
       <div className="auth-layout">
@@ -8,8 +35,8 @@ function Login({ onSubmit, onOpenRegister }) {
           <p className="section-tag">Member access</p>
           <h2>Move from scattered commute planning to one clean dashboard.</h2>
           <p>
-            The UI is prepared for route posts, commuter matching, and bike availability. For now,
-            submitting the form opens the dashboard preview.
+            Sign in with your EcoRide account to access the commuter dashboard and shared mobility
+            features.
           </p>
 
           <div className="mini-dashboard">
@@ -33,18 +60,33 @@ function Login({ onSubmit, onOpenRegister }) {
             </button>
           </div>
 
-          <form className="form-card auth-form" onSubmit={onSubmit}>
+          <form className="form-card auth-form" onSubmit={handleSubmit}>
             <h3>Welcome back</h3>
             <label>
               Email address
-              <input type="email" placeholder="student@university.edu" />
+              <input
+                name="email"
+                type="email"
+                placeholder="student@university.edu"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
             </label>
             <label>
               Password
-              <input type="password" placeholder="Enter your password" />
+              <input
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
             </label>
-            <button className="primary-btn" type="submit">
-              Login to dashboard
+            {errorMessage ? <p className="form-message form-error">{errorMessage}</p> : null}
+            <button className="primary-btn" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Logging in...' : 'Login to dashboard'}
             </button>
           </form>
         </section>

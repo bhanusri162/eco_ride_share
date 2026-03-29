@@ -117,3 +117,99 @@ export const rideFeed = [
     seats: 'Bike + ride combo',
   },
 ]
+
+export const ridePosts = [
+  {
+    route: 'South Bank to City Campus',
+    driver: 'Arjun R.',
+    timing: 'Today, 8:20 AM',
+    seats: '2 seats left',
+    pickup: 'Waterloo Bridge stop',
+    note: 'Daily weekday ride. Looking for regular commuters.',
+  },
+  {
+    route: 'Kingston to Tech Park',
+    driver: 'Sarah W.',
+    timing: 'Today, 6:05 PM',
+    seats: '1 seat left',
+    pickup: 'Kingston Station exit',
+    note: 'Evening office return trip with flexible pickup.',
+  },
+  {
+    route: 'North Station to Green Hub',
+    driver: 'Mia T.',
+    timing: 'Tomorrow, 8:00 AM',
+    seats: 'Bike + ride combo',
+    pickup: 'North Station gate 2',
+    note: 'Ride-share until Green Hub, then bikes available nearby.',
+  },
+]
+
+export const rideRequests = [
+  { name: 'Daniel K.', detail: 'Requested 1 seat for the Kingston route', status: 'Pending' },
+  { name: 'Hana P.', detail: 'Asked about luggage space for campus ride', status: 'Commented' },
+  { name: 'Leo M.', detail: 'Accepted for tomorrow morning route', status: 'Approved' },
+]
+
+export const bikeStations = [
+  {
+    name: 'Innovation Campus Dock',
+    bikes: '14 bikes',
+    distance: '2 min walk',
+    availability: 'High availability',
+  },
+  {
+    name: 'Central Library Hub',
+    bikes: '6 bikes',
+    distance: '5 min walk',
+    availability: 'Moderate availability',
+  },
+  {
+    name: 'Tech Park South Gate',
+    bikes: '9 bikes',
+    distance: '4 min walk',
+    availability: 'Ready for evening return',
+  },
+]
+
+export const bikeBenefits = [
+  'Quick short-distance movement between stations and campuses',
+  'Last-mile support after shared rides',
+  'Lower fuel usage and cleaner urban travel',
+]
+
+export const routePlannerSteps = [
+  {
+    title: 'Pin pickup and destination',
+    text: 'Select route endpoints with a map-driven flow for clearer ride coordination.',
+  },
+  {
+    title: 'Match overlapping routes',
+    text: 'Surface rides that share timing and direction with the commuter’s plan.',
+  },
+  {
+    title: 'Combine bikes when needed',
+    text: 'Recommend bike transfer points where the final distance is short.',
+  },
+]
+
+export const trustSignals = [
+  {
+    title: 'User ratings',
+    text: 'Visible ratings help users identify dependable drivers and repeat commuters.',
+  },
+  {
+    title: 'Comments on ride posts',
+    text: 'Community interaction builds route clarity before users accept a trip.',
+  },
+  {
+    title: 'Verified local community',
+    text: 'The system is intended for students and office communities rather than open public marketplaces.',
+  },
+]
+
+export const profileStats = [
+  { label: 'Rides shared', value: '28' },
+  { label: 'Average rating', value: '4.8/5' },
+  { label: 'Carbon saved', value: '186 kg' },
+]

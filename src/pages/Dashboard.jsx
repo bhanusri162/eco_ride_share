@@ -6,16 +6,18 @@ import {
   upcomingSchedule,
 } from '../data/siteContent.js'
 
-function Dashboard({ onBackHome }) {
+function Dashboard({ onBackHome, user }) {
+  const userName = user?.first_name || user?.user_name || 'Bhanu Sri'
+
   return (
     <section className="page page-dashboard">
       <section className="dashboard-hero">
         <div>
           <p className="section-tag">Dashboard preview</p>
-          <h2>Good morning, Bhanu Sri.</h2>
+          <h2>Good morning, {userName}.</h2>
           <p>
-            This is a visual-only dashboard state that appears after clicking login or
-            registration. Functional backend flows can be wired later.
+            This dashboard preview shows the kind of commute activity, schedules, and community
+            interaction the platform can support after login.
           </p>
         </div>
         <button className="ghost-btn" onClick={onBackHome} type="button">
