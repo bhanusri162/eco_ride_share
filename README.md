@@ -1,5 +1,37 @@
 # React + Vite
 
+## MAMP API setup
+
+This project is a React frontend. It does not connect to MySQL directly. Instead, it sends
+requests to a backend API, and that backend should use your MAMP MySQL connection.
+
+1. Create `.env` in the project root.
+2. Copy the value from `.env.example`.
+3. Point `VITE_API_BASE_URL` to your MAMP PHP API folder.
+
+Example:
+
+```env
+VITE_API_BASE_URL=http://localhost:8888/eco-ride-share-api
+```
+
+Expected MAMP defaults for the backend:
+
+```txt
+DB_HOST=localhost
+DB_PORT=8889
+DB_DATABASE=your_database_name
+DB_USERNAME=root
+DB_PASSWORD=root
+```
+
+If your PHP backend is inside MAMP `htdocs`, your login and register endpoints should exist under:
+
+```txt
+http://localhost:8888/eco-ride-share-api/ymhs/autenticate/login
+http://localhost:8888/eco-ride-share-api/ymhs/autenticate/register
+```
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

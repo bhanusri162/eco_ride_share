@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 const request = async (path, options = {}) => {
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -19,13 +20,13 @@ const request = async (path, options = {}) => {
 };
 
 export const loginUser = (payload) =>
-  request('/ymhs/autenticate/login', {
+  request('/ecorideshare/autenticate/login', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
 
 export const registerUser = (payload) =>
-  request('/ymhs/autenticate/register', {
+  request('/ecorideshare/autenticate/register', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
