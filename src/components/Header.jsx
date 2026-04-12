@@ -27,6 +27,7 @@ const Header = () => {
             <Link to="/" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Home</Link>
             <Link to="/rides" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Rides</Link>
             <Link to="/bikes" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Bikes</Link>
+            {isAuthenticated && <Link to="/messages" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Messages</Link>}
             <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About</Link>
           </nav>
 
@@ -35,6 +36,9 @@ const Header = () => {
               <div className="user-menu">
                 <Link to="/dashboard" className="btn btn-outline btn-sm">
                   <UserIcon /> Dashboard
+                </Link>
+                <Link to="/profile" className="btn btn-primary btn-sm">
+                  {user?.firstName || 'Profile'}
                 </Link>
                 <button onClick={handleLogout} className="btn btn-outline btn-sm">
                   Logout

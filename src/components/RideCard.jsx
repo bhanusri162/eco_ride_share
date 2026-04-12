@@ -54,7 +54,7 @@ const RideCard = ({ ride }) => {
         </div>
         <div className="detail">
           <ClockIcon />
-          <span>{formatTime(ride.date)}</span>
+          <span>{formatTime(ride.date, ride.time)}</span>
         </div>
         <div className="detail">
           <CarIcon />

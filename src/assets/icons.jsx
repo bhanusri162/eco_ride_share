@@ -72,3 +72,23 @@ export const SearchIcon = () => (
     <path d="M21 21l-4.35-4.35" />
   </svg>
 );
+
+export const MailIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M4 6h16v12H4z" />
+    <path d="M4 7l8 6 8-6" />
+  </svg>
+);
+
+export const PhoneIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72l.45 3a2 2 0 0 1-.57 1.73L7.91 9.91a16 16 0 0 0 6.18 6.18l1.46-1.08a2 2 0 0 1 1.73-.57l3 .45A2 2 0 0 1 22 16.92z" />
+  </svg>
+);
+
+export const EditIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+  </svg>
+);

@@ -92,6 +92,22 @@
   height: 16px;
 }
 
+.profile-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.profile-badge {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .edit-profile-btn {
   position: absolute;
   top: 16px;
@@ -156,6 +172,12 @@
   display: flex;
   gap: 16px;
   justify-content: center;
+  flex-wrap: wrap;
+}
+
+.profile-links {
+  margin-top: 20px;
+  text-align: center;
 }
 
 @media (max-width: 768px) {

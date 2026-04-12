@@ -1,0 +1,88 @@
+.inbox-page {
+  padding-bottom: 48px;
+}
+
+.inbox-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+}
+
+.conversation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.conversation-item {
+  text-align: left;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 14px;
+  background: var(--white);
+}
+
+.conversation-item.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.conversation-item span,
+.conversation-item small {
+  display: block;
+  color: var(--gray-500);
+}
+
+.thread-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.thread-messages {
+  display: grid;
+  gap: 12px;
+  min-height: 280px;
+  margin-bottom: 18px;
+}
+
+.thread-bubble {
+  max-width: 70%;
+  padding: 14px 16px;
+  border-radius: 16px;
+}
+
+.thread-bubble.incoming {
+  background: var(--gray-100);
+}
+
+.thread-bubble.outgoing {
+  justify-self: end;
+  background: var(--primary-light);
+}
+
+.thread-bubble small {
+  display: block;
+  margin-top: 8px;
+  color: var(--gray-500);
+}
+
+.thread-form {
+  display: grid;
+  gap: 12px;
+}
+
+.thread-empty {
+  color: var(--gray-500);
+}
+
+@media (max-width: 900px) {
+  .inbox-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .thread-bubble {
+    max-width: 100%;
+  }
+}

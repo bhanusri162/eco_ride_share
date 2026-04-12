@@ -1,4 +1,6 @@
 export const formatDate = (date) => {
+  if (!date) return '';
+
   return new Date(date).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -6,8 +8,12 @@ export const formatDate = (date) => {
   });
 };
 
-export const formatTime = (date) => {
-  return new Date(date).toLocaleTimeString('en-US', {
+export const formatTime = (date, time) => {
+  if (!date && !time) return '';
+
+  const value = time ? `${date}T${time}` : date;
+
+  return new Date(value).toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
   });

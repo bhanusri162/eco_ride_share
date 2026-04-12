@@ -21,11 +21,32 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const [statsRes, ridesRes] = await Promise.all([
-        apiGet('/api/dashboard/stats'),
-        apiGet(`${API_ENDPOINTS.RIDES}/upcoming`),
+        apiGet(`${API_ENDPOINTS.PROFILE}/stats`),
+        apiGet(`${API_ENDPOINTS.RIDES}/my/list`),
       ]);
       setStats(statsRes);
-      setUpcomingRides(ridesRes.slice(0, 3));
+      setUpcomingRides(
+        ridesRes
+          .filter((ride) => ride.status !== 'cancelled')
+          .slice(0, 3)
+          .map((ride) => ({
+            id: ride.ride_id,
+            driver: {
+              id: user?.id,
+              name: user?.name,
+              rating: user?.rating || statsRes?.rating || 0,
+            },
+            pickup: ride.pickup_address,
+            destination: ride.destination_address,
+            date: ride.ride_date,
+            time: ride.ride_time,
+            price: ride.price_per_seat,
+            availableSeats: ride.available_seats,
+            totalSeats: ride.total_seats,
+            vehicle: ride.vehicle_type,
+            status: ride.status,
+          }))
+      );
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -87,12 +108,18 @@ const Dashboard = () => {
           <Link to="/bikes" className="btn btn-outline">
             <BikeIcon /> Rent a Bike
           </Link>
+          <Link to="/activity" className="btn btn-outline">
+            Activity
+          </Link>
+          <Link to="/messages" className="btn btn-outline">
+            Messages
+          </Link>
         </div>
 
         <div className="dashboard-section">
           <div className="section-header">
             <h2>Upcoming Rides</h2>
-            <Link to="/my-rides">View All</Link>
+            <Link to="/rides">View All</Link>
           </div>
           
           {upcomingRides.length > 0 ? (

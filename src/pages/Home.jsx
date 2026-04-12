@@ -13,8 +13,8 @@ const Home = () => {
       <section className="hero">
         <div className="container">
           <div className="hero-content">
-            <h1>Share Rides, <span>Save the Planet</span></h1>
-            <p>Join the community of eco-conscious commuters. Share rides, rent bikes, and make sustainable transportation choices together.</p>
+            <h1>Shared Commutes For <span>Students And Office Teams</span></h1>
+            <p>EcoRide Share helps campus commuters and office employees post rides, match routes, book last-mile bikes, and build trust through ratings and community conversations.</p>
             
             <div className="hero-buttons">
               {isAuthenticated ? (
@@ -32,16 +32,16 @@ const Home = () => {
 
             <div className="hero-stats">
               <div className="stat">
-                <span className="stat-value">1000+</span>
-                <span className="stat-label">Active Users</span>
+                <span className="stat-value">Campus</span>
+                <span className="stat-label">Student-ready routes</span>
               </div>
               <div className="stat">
-                <span className="stat-value">500+</span>
-                <span className="stat-label">Shared Rides</span>
+                <span className="stat-value">Office</span>
+                <span className="stat-label">Peak-hour commute support</span>
               </div>
               <div className="stat">
-                <span className="stat-value">50+</span>
-                <span className="stat-label">CO₂ Saved (tons)</span>
+                <span className="stat-value">Bike+</span>
+                <span className="stat-label">Last-mile eco travel</span>
               </div>
             </div>
           </div>
@@ -96,13 +96,13 @@ const Home = () => {
             <div className="step">
               <div className="step-number">2</div>
               <h3>Find or Post Rides</h3>
-              <p>Search for rides or create your own ride post.</p>
+              <p>Search shared campus or office routes, or publish your own commute.</p>
             </div>
             
             <div className="step">
               <div className="step-number">3</div>
               <h3>Connect & Travel</h3>
-              <p>Book your ride and travel sustainably together.</p>
+              <p>Book, message the commuter, add comments, rate the trip, and use a bike for the final stretch.</p>
             </div>
           </div>
         </div>

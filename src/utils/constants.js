@@ -1,11 +1,15 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8888/eco-ride-share-api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const API_ENDPOINTS = {
-  LOGIN: '/ymhs/autenticate/login',
-  REGISTER: '/ymhs/autenticate/register',
+  LOGIN: '/ecorideshare/autenticate/login',
+  REGISTER: '/ecorideshare/autenticate/register',
   RIDES: '/api/rides',
   BIKES: '/api/bikes',
   PROFILE: '/api/profile',
+  BOOKINGS: '/api/bookings',
+  COMMENTS: '/api/comments',
+  MESSAGES: '/api/messages',
+  CONTACT: '/contact',
 };
 
 export const STORAGE_KEYS = {

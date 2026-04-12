@@ -1,10 +1,40 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getUserData, setUserData, clearAuth, isAuthenticated } from '../utils/auth';
-import { apiPost } from '../utils/api';
+import {
+  getUserData,
+  setUserData,
+  clearAuth,
+  isAuthenticated,
+  setAuthToken,
+} from '../utils/auth';
+import { apiGet, apiPost, apiPut } from '../utils/api';
 import { API_ENDPOINTS } from '../utils/constants';
 import { getErrorMessage } from '../utils/helpers';
 
 const AppContext = createContext();
+
+const normalizeUser = (user) => {
+  if (!user) return null;
+
+  const firstName = user.firstName || user.first_name || '';
+  const lastName = user.lastName || user.last_name || '';
+  const fullName = user.name || `${firstName} ${lastName}`.trim() || user.user_name || 'User';
+
+  return {
+    id: user.id || user.user_id || null,
+    username: user.username || user.user_name || '',
+    name: fullName,
+    firstName,
+    lastName,
+    email: user.email || '',
+    phone: user.phone || user.mobile_no || '',
+    address: user.address || '',
+    gender: user.gender || 'prefer_not_to_say',
+    role: user.role || '',
+    rating: user.rating || 0,
+    ratingCount: user.ratingCount || user.rating_count || 0,
+    memberSince: user.memberSince || user.created_at || null,
+  };
+};
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -13,7 +43,7 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     if (isAuthenticated()) {
-      setUser(getUserData());
+      setUser(normalizeUser(getUserData()));
     }
     setLoading(false);
   }, []);
@@ -26,8 +56,11 @@ export const AppProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await apiPost(API_ENDPOINTS.LOGIN, { email, password });
-      setUser(response.user);
-      setUserData(response.user);
+      const normalizedUser = normalizeUser(response.user);
+
+      setAuthToken(response.token);
+      setUser(normalizedUser);
+      setUserData(normalizedUser);
       showNotification('Login successful!', 'success');
       return { success: true };
     } catch (error) {
@@ -36,16 +69,50 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const register = async (userData) => {
+  const register = async (formData) => {
     try {
-      const response = await apiPost(API_ENDPOINTS.REGISTER, userData);
-      setUser(response.user);
-      setUserData(response.user);
-      showNotification('Registration successful!', 'success');
-      return { success: true };
+      await apiPost(API_ENDPOINTS.REGISTER, {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        mobileNo: formData.phone,
+        gender: formData.gender,
+        role: formData.role,
+        acceptedTerms: true,
+        address: formData.address || '',
+      });
+
+      return login(formData.email, formData.password);
     } catch (error) {
       showNotification(getErrorMessage(error), 'error');
       return { success: false, error: getErrorMessage(error) };
+    }
+  };
+
+  const refreshProfile = async () => {
+    try {
+      const profile = await apiGet(API_ENDPOINTS.PROFILE);
+      const normalizedUser = normalizeUser(profile);
+
+      setUser(normalizedUser);
+      setUserData(normalizedUser);
+      return normalizedUser;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  };
+
+  const updateProfile = async (profileData) => {
+    try {
+      await apiPut(API_ENDPOINTS.PROFILE, profileData);
+      const updatedUser = await refreshProfile();
+      showNotification('Profile updated successfully!', 'success');
+      return updatedUser;
+    } catch (error) {
+      showNotification(getErrorMessage(error), 'error');
+      throw error;
     }
   };
 
@@ -63,6 +130,8 @@ export const AppProvider = ({ children }) => {
         notification,
         login,
         register,
+        updateProfile,
+        refreshProfile,
         logout,
         showNotification,
         isAuthenticated: !!user,

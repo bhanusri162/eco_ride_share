@@ -12,7 +12,7 @@ requests to a backend API, and that backend should use your MAMP MySQL connectio
 Example:
 
 ```env
-VITE_API_BASE_URL=http://localhost:8888/eco-ride-share-api
+VITE_API_BASE_URL=http://localhost:3001
 ```
 
 Expected MAMP defaults for the backend:
@@ -28,8 +28,8 @@ DB_PASSWORD=root
 If your PHP backend is inside MAMP `htdocs`, your login and register endpoints should exist under:
 
 ```txt
-http://localhost:8888/eco-ride-share-api/ymhs/autenticate/login
-http://localhost:8888/eco-ride-share-api/ymhs/autenticate/register
+http://localhost:3001/ecorideshare/autenticate/login
+http://localhost:3001/ecorideshare/autenticate/register
 ```
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

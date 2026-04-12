@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { apiGet, apiPut } from '../utils/api';
+import { apiGet } from '../utils/api';
+import { API_ENDPOINTS } from '../utils/constants';
 import { getInitials } from '../utils/helpers';
 import Loader from '../components/Loader';
 import { UserIcon, MailIcon, PhoneIcon, StarIcon, EditIcon } from '../assets/icons';
@@ -14,10 +15,11 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [stats, setStats] = useState(null);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    bio: user?.bio || '',
+    address: user?.address || '',
   });
   const [errors, setErrors] = useState({});
 
@@ -25,9 +27,19 @@ const Profile = () => {
     fetchUserStats();
   }, []);
 
+  useEffect(() => {
+    setFormData({
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      address: user?.address || '',
+    });
+  }, [user]);
+
   const fetchUserStats = async () => {
     try {
-      const data = await apiGet('/api/profile/stats');
+      const data = await apiGet(`${API_ENDPOINTS.PROFILE}/stats`);
       setStats(data);
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -48,7 +60,8 @@ const Profile = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.name) newErrors.name = 'Name is required';
+    if (!formData.firstName) newErrors.firstName = 'First name is required';
+    if (!formData.lastName) newErrors.lastName = 'Last name is required';
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.phone) newErrors.phone = 'Phone is required';
     
@@ -63,8 +76,12 @@ const Profile = () => {
 
     setLoading(true);
     try {
-      await updateProfile(formData);
-      showNotification('Profile updated successfully!', 'success');
+      await updateProfile({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        address: formData.address,
+      });
       setIsEditing(false);
     } catch (error) {
       showNotification('Failed to update profile', 'error');
@@ -99,12 +116,18 @@ const Profile = () => {
                 </div>
               </div>
               
-              <p className="profile-bio">{user?.bio || 'No bio added yet'}</p>
+              <p className="profile-bio">{user?.address || 'No address added yet'}</p>
               
               <div className="profile-meta">
                 <span><MailIcon /> {user?.email}</span>
                 <span><PhoneIcon /> {user?.phone || 'Not provided'}</span>
-                <span>📅 Member since {new Date(stats?.memberSince).getFullYear()}</span>
+                <span>Role: {user?.role || 'rider'}</span>
+                <span>Gender: {user?.gender?.replaceAll('_', ' ') || 'Prefer not to say'}</span>
+                <span>📅 Member since {new Date(stats?.memberSince || user?.memberSince || Date.now()).getFullYear()}</span>
+              </div>
+              <div className="profile-badges">
+                <span className="profile-badge">{Number(stats?.rating || 0) >= 4 ? 'Trusted commuter' : 'Community member'}</span>
+                <span className="profile-badge">Student & office commute ready</span>
               </div>
             </div>
             
@@ -123,15 +146,27 @@ const Profile = () => {
               
               <form onSubmit={handleSubmit}>
                 <div className="input-group">
-                  <label className="input-label">Full Name</label>
+                  <label className="input-label">First Name</label>
                   <input
                     type="text"
-                    name="name"
-                    className={`input-field ${errors.name ? 'error' : ''}`}
-                    value={formData.name}
+                    name="firstName"
+                    className={`input-field ${errors.firstName ? 'error' : ''}`}
+                    value={formData.firstName}
                     onChange={handleChange}
                   />
-                  {errors.name && <span className="error-message">{errors.name}</span>}
+                  {errors.firstName && <span className="error-message">{errors.firstName}</span>}
+                </div>
+
+                <div className="input-group">
+                  <label className="input-label">Last Name</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    className={`input-field ${errors.lastName ? 'error' : ''}`}
+                    value={formData.lastName}
+                    onChange={handleChange}
+                  />
+                  {errors.lastName && <span className="error-message">{errors.lastName}</span>}
                 </div>
 
                 <div className="input-group">
@@ -159,14 +194,14 @@ const Profile = () => {
                 </div>
 
                 <div className="input-group">
-                  <label className="input-label">Bio</label>
+                  <label className="input-label">Address</label>
                   <textarea
-                    name="bio"
+                    name="address"
                     className="input-field"
-                    value={formData.bio}
+                    value={formData.address}
                     onChange={handleChange}
                     rows="4"
-                    placeholder="Tell us about yourself..."
+                    placeholder="Enter your address"
                   />
                 </div>
 
@@ -210,12 +245,21 @@ const Profile = () => {
             </div>
 
             <div className="profile-actions">
-              <button className="btn btn-primary" onClick={() => navigate('/my-rides')}>
-                View My Rides
+              <button className="btn btn-primary" onClick={() => navigate('/rides')}>
+                View Rides
               </button>
-              <button className="btn btn-outline" onClick={() => navigate('/my-bookings')}>
-                View Bike Bookings
+              <button className="btn btn-outline" onClick={() => navigate('/activity')}>
+                Ride History
               </button>
+              <button className="btn btn-outline" onClick={() => navigate('/messages')}>
+                Messages
+              </button>
+              <button className="btn btn-outline" onClick={() => navigate('/bikes')}>
+                Browse Bikes
+              </button>
+            </div>
+            <div className="profile-links">
+              <Link to={`/commuters/${user?.id}`}>View my public commuter profile</Link>
             </div>
           </div>
         )}

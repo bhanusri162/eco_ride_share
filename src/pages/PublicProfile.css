@@ -1,0 +1,91 @@
+.public-profile-page {
+  padding-bottom: 48px;
+}
+
+.public-profile-hero {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.public-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: 36px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-tag {
+  color: var(--primary-dark);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.public-profile-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.badge-success {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.public-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 24px;
+}
+
+.public-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.public-stats div,
+.public-ride-item {
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.public-stats strong {
+  display: block;
+  font-size: 24px;
+}
+
+.public-rides {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.public-ride-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+@media (max-width: 900px) {
+  .public-profile-hero,
+  .public-profile-grid,
+  .public-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .public-profile-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

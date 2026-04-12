@@ -3,7 +3,7 @@ import { apiGet } from '../utils/api';
 import { API_ENDPOINTS } from '../utils/constants';
 import BikeCard from '../components/BikeCard';
 import Loader from '../components/Loader';
-import { SearchIcon, LocationIcon } from '../assets/icons';
+import { SearchIcon, LocationIcon, BikeIcon } from '../assets/icons';
 import './Bikes.css';
 
 const Bikes = () => {
