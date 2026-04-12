@@ -1,104 +1,99 @@
-import { ridePosts, rideRequests } from '../data/siteContent.js'
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { apiGet } from '../utils/api';
+import { API_ENDPOINTS } from '../utils/constants';
+import RideCard from '../components/RideCard';
+import Loader from '../components/Loader';
+import { SearchIcon, LocationIcon } from '../assets/icons';
+import './Rides.css';
 
-function Rides({ onOpenAuth }) {
+const Rides = () => {
+  const [rides, setRides] = useState([]);
+  const [filteredRides, setFilteredRides] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState({ pickup: '', destination: '' });
+
+  useEffect(() => {
+    fetchRides();
+  }, []);
+
+  const fetchRides = async () => {
+    try {
+      const data = await apiGet(API_ENDPOINTS.RIDES);
+      setRides(data);
+      setFilteredRides(data);
+    } catch (error) {
+      console.error('Error fetching rides:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    
+    const filtered = rides.filter(ride => {
+      const pickupMatch = ride.pickup.toLowerCase().includes(search.pickup.toLowerCase());
+      const destMatch = ride.destination.toLowerCase().includes(search.destination.toLowerCase());
+      return pickupMatch && destMatch;
+    });
+    
+    setFilteredRides(filtered);
+  };
+
+  if (loading) return <Loader />;
+
   return (
-    <section className="page page-rides">
-      <section className="split-panel">
-        <div className="section-heading">
-          <p className="section-tag">Ride-sharing posts</p>
-          <h2>Create, browse, and join rides that match your daily route.</h2>
-          <p>
-            EcoRide is meant to work like a community commute board where users can post trips,
-            request seats, and discuss pickup plans directly under each route.
-          </p>
+    <div className="rides-page">
+      <div className="container">
+        <div className="page-header">
+          <h1>Find Available Rides</h1>
+          <Link to="/rides/create" className="btn btn-primary">Post a Ride</Link>
         </div>
 
-        <div className="form-card">
-          <h3>Create a ride post</h3>
-          <label>
-            Route
-            <input type="text" placeholder="Eg. Kingston to City Campus" />
-          </label>
-          <div className="form-row">
-            <label>
-              Date
-              <input type="date" />
-            </label>
-            <label>
-              Time
-              <input type="time" />
-            </label>
-          </div>
-          <div className="form-row">
-            <label>
-              Seats available
-              <input type="number" min="1" placeholder="3" />
-            </label>
-            <label>
-              Pickup point
-              <input type="text" placeholder="Enter pickup" />
-            </label>
-          </div>
-          <button className="primary-btn" onClick={() => onOpenAuth('register')} type="button">
-            Register to post rides
-          </button>
-        </div>
-      </section>
-
-      <section className="content-grid two-column-grid">
-        <div className="stack-grid">
-          {ridePosts.map((post) => (
-            <article key={`${post.route}-${post.driver}`} className="info-card ride-post-card">
-              <div className="ride-post-head">
-                <div>
-                  <p className="section-tag">Ride post</p>
-                  <h3>{post.route}</h3>
-                </div>
-                <span className="status-pill">{post.seats}</span>
+        <div className="search-section">
+          <form onSubmit={handleSearch} className="search-form">
+            <div className="search-inputs">
+              <div className="search-input">
+                <LocationIcon />
+                <input
+                  type="text"
+                  placeholder="Pickup location"
+                  value={search.pickup}
+                  onChange={(e) => setSearch({ ...search, pickup: e.target.value })}
+                />
               </div>
-              <p>
-                <strong>Driver:</strong> {post.driver}
-              </p>
-              <p>
-                <strong>When:</strong> {post.timing}
-              </p>
-              <p>
-                <strong>Pickup:</strong> {post.pickup}
-              </p>
-              <p>{post.note}</p>
-              <div className="hero-actions">
-                <button className="primary-btn" type="button">
-                  Request to join
-                </button>
-                <button className="ghost-btn" type="button">
-                  Comment
-                </button>
+              <div className="search-input">
+                <LocationIcon />
+                <input
+                  type="text"
+                  placeholder="Destination"
+                  value={search.destination}
+                  onChange={(e) => setSearch({ ...search, destination: e.target.value })}
+                />
               </div>
-            </article>
-          ))}
+            </div>
+            <button type="submit" className="btn btn-primary">
+              <SearchIcon /> Search
+            </button>
+          </form>
         </div>
 
-        <section className="activity-panel">
-          <div className="panel-head">
-            <h3>Ride requests and comments</h3>
-            <span>Community interaction</span>
-          </div>
+        <div className="rides-grid">
+          {filteredRides.length > 0 ? (
+            filteredRides.map(ride => (
+              <RideCard key={ride.id} ride={ride} />
+            ))
+          ) : (
+            <div className="empty-state">
+              <p>No rides found</p>
+              <Link to="/rides/create" className="btn btn-primary">Post the First Ride</Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-          <div className="ride-list">
-            {rideRequests.map((item) => (
-              <article key={item.name} className="ride-item">
-                <div>
-                  <strong>{item.name}</strong>
-                  <p>{item.detail}</p>
-                </div>
-                <span>{item.status}</span>
-              </article>
-            ))}
-          </div>
-        </section>
-      </section>
-    </section>
-  )
-}
-
-export default Rides
+export default Rides;
