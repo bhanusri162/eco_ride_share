@@ -1,98 +1,88 @@
-import { useState } from 'react'
-import { dashboardCards } from '../data/siteContent.js'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
+import Loader from '../components/Loader';
+import './Login.css';
 
-function Login({ onSubmit, onOpenRegister }) {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
+const Login = () => {
+  const navigate = useNavigate();
+  const { login, loading } = useApp();
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({});
 
-  const handleChange = (event) => {
-    const { name, value } = event.target
-    setFormData((current) => ({ ...current, [name]: value }))
-  }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: '' });
+  };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    setIsSubmitting(true)
-    setErrorMessage('')
-
-    try {
-      await onSubmit(formData)
-    } catch (error) {
-      setErrorMessage(error.message || 'Unable to log in')
-    } finally {
-      setIsSubmitting(false)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    const newErrors = {};
+    if (!formData.email) newErrors.email = 'Email is required';
+    if (!formData.password) newErrors.password = 'Password is required';
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
     }
-  }
+
+    const result = await login(formData.email, formData.password);
+    if (result.success) {
+      navigate('/dashboard');
+    }
+  };
+
+  if (loading) return <Loader fullScreen />;
 
   return (
-    <section className="page page-auth">
-      <div className="auth-layout">
-        <section className="auth-showcase">
-          <p className="section-tag">Member access</p>
-          <h2>Move from scattered commute planning to one clean dashboard.</h2>
-          <p>
-            Sign in with your EcoRide account to access the commuter dashboard and shared mobility
-            features.
-          </p>
+    <div className="auth-page">
+      <div className="container">
+        <div className="auth-container">
+          <div className="auth-card">
+            <h1>Welcome Back</h1>
+            <p className="auth-subtitle">Sign in to your account</p>
 
-          <div className="mini-dashboard">
-            {dashboardCards.map((card) => (
-              <article key={card.title} className="mini-card">
-                <span>{card.title}</span>
-                <strong>{card.value}</strong>
-                <p>{card.meta}</p>
-              </article>
-            ))}
+            <form onSubmit={handleSubmit}>
+              <div className="input-group">
+                <label className="input-label">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  className={`input-field ${errors.email ? 'error' : ''}`}
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                />
+                {errors.email && <span className="error-message">{errors.email}</span>}
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  className={`input-field ${errors.password ? 'error' : ''}`}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                />
+                {errors.password && <span className="error-message">{errors.password}</span>}
+              </div>
+
+              <button type="submit" className="btn btn-primary btn-full btn-lg">
+                Sign In
+              </button>
+            </form>
+
+            <p className="auth-footer">
+              Don't have an account? <Link to="/register">Sign Up</Link>
+            </p>
           </div>
-        </section>
-
-        <section className="auth-panel">
-          <div className="auth-tabs">
-            <button className="auth-tab active" type="button">
-              Login
-            </button>
-            <button className="auth-tab" onClick={onOpenRegister} type="button">
-              Registration
-            </button>
-          </div>
-
-          <form className="form-card auth-form" onSubmit={handleSubmit}>
-            <h3>Welcome back</h3>
-            <label>
-              Email address
-              <input
-                name="email"
-                type="email"
-                placeholder="student@university.edu"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </label>
-            <label>
-              Password
-              <input
-                name="password"
-                type="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-            </label>
-            {errorMessage ? <p className="form-message form-error">{errorMessage}</p> : null}
-            <button className="primary-btn" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Logging in...' : 'Login to dashboard'}
-            </button>
-          </form>
-        </section>
+        </div>
       </div>
-    </section>
-  )
-}
+    </div>
+  );
+};
 
-export default Login
+export default Login;

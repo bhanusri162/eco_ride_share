@@ -1,225 +1,149 @@
-import { useState } from 'react'
-import { dashboardCards } from '../data/siteContent.js'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
+import Loader from '../components/Loader';
+import './Login.css';
 
-const initialFormData = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phoneNumber: '',
-  role: '',
-  organization: '',
-  commuteArea: '',
-  preferredMode: '',
-  password: '',
-  confirmPassword: '',
-  acceptedTerms: false,
-}
+const Register = () => {
+  const navigate = useNavigate();
+  const { register, loading } = useApp();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [errors, setErrors] = useState({});
 
-function Register({ onSubmit, onOpenLogin }) {
-  const [formData, setFormData] = useState(initialFormData)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: '' });
+  };
 
-  const handleChange = (event) => {
-    const { name, value, type, checked } = event.target
-    setFormData((current) => ({
-      ...current,
-      [name]: type === 'checkbox' ? checked : value,
-    }))
-  }
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    setIsSubmitting(true)
-    setErrorMessage('')
-    setSuccessMessage('')
-
-    try {
-      await onSubmit(formData)
-      setSuccessMessage('Registration successful. You can log in now.')
-      setFormData(initialFormData)
-    } catch (error) {
-      setErrorMessage(error.message || 'Unable to register')
-    } finally {
-      setIsSubmitting(false)
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name) newErrors.name = 'Name is required';
+    if (!formData.email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email';
+    if (!formData.phone) newErrors.phone = 'Phone is required';
+    if (!formData.password) newErrors.password = 'Password is required';
+    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
     }
-  }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+
+    const result = await register({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password,
+    });
+    
+    if (result.success) {
+      navigate('/dashboard');
+    }
+  };
+
+  if (loading) return <Loader fullScreen />;
 
   return (
-    <section className="page page-auth">
-      <div className="auth-layout">
-        <section className="auth-showcase">
-          <p className="section-tag">New member onboarding</p>
-          <h2>Create a profile for community rides, bike access, and cleaner commuting.</h2>
-          <p>
-            Register your EcoRide account to join shared rides, bike access programs, and
-            community-based commuting.
-          </p>
+    <div className="auth-page">
+      <div className="container">
+        <div className="auth-container">
+          <div className="auth-card">
+            <h1>Create Account</h1>
+            <p className="auth-subtitle">Join the eco-friendly community</p>
 
-          <div className="mini-dashboard">
-            {dashboardCards.map((card) => (
-              <article key={card.title} className="mini-card">
-                <span>{card.title}</span>
-                <strong>{card.value}</strong>
-                <p>{card.meta}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="auth-panel">
-          <div className="auth-tabs">
-            <button className="auth-tab" onClick={onOpenLogin} type="button">
-              Login
-            </button>
-            <button className="auth-tab active" type="button">
-              Registration
-            </button>
-          </div>
-
-          <form className="form-card auth-form" onSubmit={handleSubmit}>
-            <h3>Create your account</h3>
-            <div className="form-row">
-              <label>
-                First name
+            <form onSubmit={handleSubmit}>
+              <div className="input-group">
+                <label className="input-label">Full Name</label>
                 <input
-                  name="firstName"
                   type="text"
-                  placeholder="Enter first name"
-                  value={formData.firstName}
+                  name="name"
+                  className={`input-field ${errors.name ? 'error' : ''}`}
+                  value={formData.name}
                   onChange={handleChange}
-                  required
+                  placeholder="Enter your full name"
                 />
-              </label>
-              <label>
-                Last name
+                {errors.name && <span className="error-message">{errors.name}</span>}
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Email</label>
                 <input
-                  name="lastName"
-                  type="text"
-                  placeholder="Enter last name"
-                  value={formData.lastName}
+                  type="email"
+                  name="email"
+                  className={`input-field ${errors.email ? 'error' : ''}`}
+                  value={formData.email}
                   onChange={handleChange}
-                  required
+                  placeholder="Enter your email"
                 />
-              </label>
-            </div>
-            <label>
-              Email address
-              <input
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </label>
-            <div className="form-row">
-              <label>
-                Phone number
+                {errors.email && <span className="error-message">{errors.email}</span>}
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Phone Number</label>
                 <input
-                  name="phoneNumber"
                   type="tel"
-                  placeholder="+44 7XXX XXXXXX"
-                  value={formData.phoneNumber}
+                  name="phone"
+                  className={`input-field ${errors.phone ? 'error' : ''}`}
+                  value={formData.phone}
                   onChange={handleChange}
-                  required
+                  placeholder="Enter your phone number"
                 />
-              </label>
-              <label>
-                User role
-                <select name="role" value={formData.role} onChange={handleChange} required>
-                  <option value="" disabled>
-                    Select role
-                  </option>
-                  <option value="Student">Student</option>
-                  <option value="Office Employee">Office Employee</option>
-                  <option value="Driver">Driver</option>
-                </select>
-              </label>
-            </div>
-            <label>
-              Organization or university
-              <input
-                name="organization"
-                type="text"
-                placeholder="Enter workplace or university"
-                value={formData.organization}
-                onChange={handleChange}
-              />
-            </label>
-            <div className="form-row">
-              <label>
-                Primary commute area
+                {errors.phone && <span className="error-message">{errors.phone}</span>}
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Password</label>
                 <input
-                  name="commuteArea"
-                  type="text"
-                  placeholder="Eg. Kingston to City Campus"
-                  value={formData.commuteArea}
-                  onChange={handleChange}
-                />
-              </label>
-              <label>
-                Preferred travel mode
-                <select
-                  name="preferredMode"
-                  value={formData.preferredMode}
-                  onChange={handleChange}
-                >
-                  <option value="" disabled>
-                    Select mode
-                  </option>
-                  <option value="Ride sharing">Ride sharing</option>
-                  <option value="Bike sharing">Bike sharing</option>
-                  <option value="Both">Both</option>
-                </select>
-              </label>
-            </div>
-            <div className="form-row">
-              <label>
-                Password
-                <input
-                  name="password"
                   type="password"
-                  placeholder="Create a password"
+                  name="password"
+                  className={`input-field ${errors.password ? 'error' : ''}`}
                   value={formData.password}
                   onChange={handleChange}
-                  required
+                  placeholder="Create a password"
                 />
-              </label>
-              <label>
-                Confirm password
+                {errors.password && <span className="error-message">{errors.password}</span>}
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Confirm Password</label>
                 <input
-                  name="confirmPassword"
                   type="password"
-                  placeholder="Confirm your password"
+                  name="confirmPassword"
+                  className={`input-field ${errors.confirmPassword ? 'error' : ''}`}
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  required
+                  placeholder="Confirm your password"
                 />
-              </label>
-            </div>
-            <label className="checkbox-row">
-              <input
-                name="acceptedTerms"
-                type="checkbox"
-                checked={formData.acceptedTerms}
-                onChange={handleChange}
-                required
-              />
-              <span>I agree to commute safely and follow the EcoRide community guidelines.</span>
-            </label>
-            {errorMessage ? <p className="form-message form-error">{errorMessage}</p> : null}
-            {successMessage ? <p className="form-message form-success">{successMessage}</p> : null}
-            <button className="primary-btn" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Registering...' : 'Register and continue'}
-            </button>
-          </form>
-        </section>
-      </div>
-    </section>
-  )
-}
+                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+              </div>
 
-export default Register
+              <button type="submit" className="btn btn-primary btn-full btn-lg">
+                Sign Up
+              </button>
+            </form>
+
+            <p className="auth-footer">
+              Already have an account? <Link to="/login">Sign In</Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Register;

@@ -1,123 +1,116 @@
-import {
-  communityActivity,
-  commuteSummary,
-  dashboardCards,
-  rideFeed,
-  upcomingSchedule,
-} from '../data/siteContent.js'
+ import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
+import { apiGet } from '../utils/api';
+import { API_ENDPOINTS } from '../utils/constants';
+import RideCard from '../components/RideCard';
+import Loader from '../components/Loader';
+import { CarIcon, BikeIcon, UserIcon } from '../assets/icons';
+import './Dashboard.css';
 
-function Dashboard({ onBackHome, user }) {
-  const userName = user?.first_name || user?.user_name || 'Bhanu Sri'
+const Dashboard = () => {
+  const { user } = useApp();
+  const [stats, setStats] = useState(null);
+  const [upcomingRides, setUpcomingRides] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [statsRes, ridesRes] = await Promise.all([
+        apiGet('/api/dashboard/stats'),
+        apiGet(`${API_ENDPOINTS.RIDES}/upcoming`),
+      ]);
+      setStats(statsRes);
+      setUpcomingRides(ridesRes.slice(0, 3));
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <Loader />;
 
   return (
-    <section className="page page-dashboard">
-      <section className="dashboard-hero">
-        <div>
-          <p className="section-tag">Dashboard preview</p>
-          <h2>Good morning, {userName}.</h2>
-          <p>
-            This dashboard preview shows the kind of commute activity, schedules, and community
-            interaction the platform can support after login.
-          </p>
+    <div className="dashboard">
+      <div className="container">
+        <div className="dashboard-header">
+          <h1>Welcome back, {user?.name}!</h1>
+          <p>Here's what's happening with your rides</p>
         </div>
-        <button className="ghost-btn" onClick={onBackHome} type="button">
-          Back to home
-        </button>
-      </section>
 
-      <section className="dashboard-grid">
-        {dashboardCards.map((card) => (
-          <article key={card.title} className="dashboard-card">
-            <span>{card.title}</span>
-            <strong>{card.value}</strong>
-            <p>{card.meta}</p>
-          </article>
-        ))}
-      </section>
-
-      <section className="dashboard-layout">
-        <section className="activity-panel">
-          <div className="panel-head">
-            <h3>Today&apos;s commute activity</h3>
-            <span>Smart community feed</span>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <CarIcon />
+            <div>
+              <span className="stat-card-value">{stats?.totalRides || 0}</span>
+              <span className="stat-card-label">Total Rides</span>
+            </div>
           </div>
-
-          <div className="ride-list">
-            {rideFeed.map((ride) => (
-              <article key={ride.route} className="ride-item dashboard-ride-item">
-                <div>
-                  <strong>{ride.route}</strong>
-                  <p>{ride.time}</p>
-                </div>
-                <span>{ride.seats}</span>
-              </article>
-            ))}
+          
+          <div className="stat-card">
+            <BikeIcon />
+            <div>
+              <span className="stat-card-value">{stats?.bikeRentals || 0}</span>
+              <span className="stat-card-label">Bike Rentals</span>
+            </div>
           </div>
-        </section>
-
-        <section className="summary-panel">
-          <div className="panel-head">
-            <h3>Weekly overview</h3>
-            <span>Personal impact</span>
+          
+          <div className="stat-card">
+            <span>🌿</span>
+            <div>
+              <span className="stat-card-value">{stats?.co2Saved || 0}kg</span>
+              <span className="stat-card-label">CO₂ Saved</span>
+            </div>
           </div>
-
-          <div className="summary-grid">
-            {commuteSummary.map((item) => (
-              <article key={item.label} className="summary-card">
-                <span>{item.label}</span>
-                <strong>{item.value}</strong>
-                <p>{item.note}</p>
-              </article>
-            ))}
+          
+          <div className="stat-card">
+            <span>⭐</span>
+            <div>
+              <span className="stat-card-value">{user?.rating || '4.5'}</span>
+              <span className="stat-card-label">Your Rating</span>
+            </div>
           </div>
-        </section>
-      </section>
+        </div>
 
-      <section className="dashboard-layout">
-        <section className="schedule-panel">
-          <div className="panel-head">
-            <h3>Upcoming schedule</h3>
-            <span>Next 3 commute windows</span>
+        <div className="dashboard-actions">
+          <Link to="/rides/create" className="btn btn-primary">
+            <CarIcon /> Post a Ride
+          </Link>
+          <Link to="/rides" className="btn btn-outline">
+            Find Rides
+          </Link>
+          <Link to="/bikes" className="btn btn-outline">
+            <BikeIcon /> Rent a Bike
+          </Link>
+        </div>
+
+        <div className="dashboard-section">
+          <div className="section-header">
+            <h2>Upcoming Rides</h2>
+            <Link to="/my-rides">View All</Link>
           </div>
+          
+          {upcomingRides.length > 0 ? (
+            <div className="rides-grid">
+              {upcomingRides.map(ride => (
+                <RideCard key={ride.id} ride={ride} />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <p>No upcoming rides</p>
+              <Link to="/rides" className="btn btn-primary">Find a Ride</Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-          <div className="schedule-list">
-            {upcomingSchedule.map((item) => (
-              <article key={`${item.day}-${item.route}`} className="schedule-item">
-                <div className="schedule-day">{item.day}</div>
-                <div className="schedule-content">
-                  <strong>{item.route}</strong>
-                  <p>{item.window}</p>
-                </div>
-                <span className="schedule-status">{item.status}</span>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="community-panel">
-          <div className="panel-head">
-            <h3>Community updates</h3>
-            <span>Trusted commuter network</span>
-          </div>
-
-          <div className="community-list">
-            {communityActivity.map((item) => (
-              <article key={`${item.name}-${item.time}`} className="community-item">
-                <div className="community-avatar">{item.name.charAt(0)}</div>
-                <div className="community-copy">
-                  <strong>
-                    {item.name} {item.action}
-                  </strong>
-                  <p>{item.detail}</p>
-                </div>
-                <span className="community-time">{item.time}</span>
-              </article>
-            ))}
-          </div>
-        </section>
-      </section>
-    </section>
-  )
-}
-
-export default Dashboard
+export default Dashboard;
