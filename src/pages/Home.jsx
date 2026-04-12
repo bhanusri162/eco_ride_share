@@ -1,99 +1,127 @@
-import { highlights, rideFeed, stats } from '../data/siteContent.js'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
+import { CarIcon, BikeIcon, UserIcon, LocationIcon } from '../assets/icons';
+import './Home.css';
 
-function Home({ onOpenAuth, onOpenPage }) {
+const Home = () => {
+  const { isAuthenticated } = useApp();
+
   return (
-    <section className="page page-home">
-      <section className="hero-panel">
-        <div className="hero-copy">
-          <p className="section-tag">Community-first mobility platform</p>
-          <h2>Share rides, access bikes, and commute with less cost and less carbon.</h2>
-          <p className="hero-text">
-            EcoRide Share is designed for university communities and office commuters who need a
-            smarter alternative to solo travel. Post rides, discover nearby matches, and move
-            through the city with a cleaner footprint.
-          </p>
+    <div className="home-page">
+      {/* Hero Section */}
+      <section className="hero">
+        <div className="container">
+          <div className="hero-content">
+            <h1>Share Rides, <span>Save the Planet</span></h1>
+            <p>Join the community of eco-conscious commuters. Share rides, rent bikes, and make sustainable transportation choices together.</p>
+            
+            <div className="hero-buttons">
+              {isAuthenticated ? (
+                <>
+                  <Link to="/rides" className="btn btn-primary btn-lg">Find Rides</Link>
+                  <Link to="/bikes" className="btn btn-outline btn-lg">Rent Bikes</Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/register" className="btn btn-primary btn-lg">Get Started</Link>
+                  <Link to="/login" className="btn btn-outline btn-lg">Sign In</Link>
+                </>
+              )}
+            </div>
 
-          <div className="hero-strip">
-            <span>Trusted local commuter circles</span>
-            <span>Ride + bike support</span>
-            <span>Cleaner city movement</span>
-          </div>
-
-          <div className="hero-actions">
-            <button className="primary-btn" onClick={() => onOpenAuth('register')} type="button">
-              Join EcoRide
-            </button>
-            <button className="ghost-btn" onClick={() => onOpenPage('about')} type="button">
-              Explore the Platform
-            </button>
-          </div>
-
-          <div className="stat-grid">
-            {stats.map((stat) => (
-              <article key={stat.label} className="stat-card">
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
-              </article>
-            ))}
+            <div className="hero-stats">
+              <div className="stat">
+                <span className="stat-value">1000+</span>
+                <span className="stat-label">Active Users</span>
+              </div>
+              <div className="stat">
+                <span className="stat-value">500+</span>
+                <span className="stat-label">Shared Rides</span>
+              </div>
+              <div className="stat">
+                <span className="stat-value">50+</span>
+                <span className="stat-label">CO₂ Saved (tons)</span>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <aside className="hero-visual">
-          <div className="map-card">
-            <div className="map-header">
-              <span>Live commute board</span>
-              <span className="status-pill">Low-emission mode</span>
+      {/* Features Section */}
+      <section className="features">
+        <div className="container">
+          <h2 className="section-title">Why Choose EcoRide Share?</h2>
+          
+          <div className="features-grid">
+            <div className="feature-card">
+              <div className="feature-icon">🌿</div>
+              <h3>Eco-Friendly</h3>
+              <p>Reduce your carbon footprint by sharing rides and using bikes.</p>
             </div>
-
-            <div className="signal-row">
-              <article className="signal-card">
-                <span>Active corridors</span>
-                <strong>18 routes</strong>
-              </article>
-              <article className="signal-card">
-                <span>Shared today</span>
-                <strong>246 seats</strong>
-              </article>
+            
+            <div className="feature-card">
+              <div className="feature-icon">💰</div>
+              <h3>Cost Effective</h3>
+              <p>Split travel costs and save money on daily commutes.</p>
             </div>
-
-            <div className="route-line">
-              <div>
-                <p>Pickup</p>
-                <strong>Kingston Student Hub</strong>
-              </div>
-              <div className="route-dots" />
-              <div>
-                <p>Destination</p>
-                <strong>Central Innovation Campus</strong>
-              </div>
+            
+            <div className="feature-card">
+              <div className="feature-icon">👥</div>
+              <h3>Community Driven</h3>
+              <p>Connect with trusted commuters in your area.</p>
             </div>
-
-            <div className="ride-list">
-              {rideFeed.map((ride) => (
-                <article key={ride.route} className="ride-item">
-                  <div>
-                    <strong>{ride.route}</strong>
-                    <p>{ride.time}</p>
-                  </div>
-                  <span>{ride.seats}</span>
-                </article>
-              ))}
+            
+            <div className="feature-card">
+              <div className="feature-icon">🛡️</div>
+              <h3>Safe & Secure</h3>
+              <p>Verified profiles and rating system for peace of mind.</p>
             </div>
           </div>
-        </aside>
+        </div>
       </section>
 
-      <section className="content-grid">
-        {highlights.map((item) => (
-          <article key={item.title} className="info-card">
-            <p className="section-tag">Feature</p>
-            <h3>{item.title}</h3>
-            <p>{item.text}</p>
-          </article>
-        ))}
+      {/* How It Works */}
+      <section className="how-it-works">
+        <div className="container">
+          <h2 className="section-title">How It Works</h2>
+          
+          <div className="steps">
+            <div className="step">
+              <div className="step-number">1</div>
+              <h3>Create Account</h3>
+              <p>Sign up and verify your profile in minutes.</p>
+            </div>
+            
+            <div className="step">
+              <div className="step-number">2</div>
+              <h3>Find or Post Rides</h3>
+              <p>Search for rides or create your own ride post.</p>
+            </div>
+            
+            <div className="step">
+              <div className="step-number">3</div>
+              <h3>Connect & Travel</h3>
+              <p>Book your ride and travel sustainably together.</p>
+            </div>
+          </div>
+        </div>
       </section>
-    </section>
-  )
-}
 
-export default Home
+      {/* CTA Section */}
+      <section className="cta">
+        <div className="container">
+          <div className="cta-content">
+            <h2>Ready to Start Your Eco-Friendly Journey?</h2>
+            <p>Join thousands of users who are making a difference every day.</p>
+            {!isAuthenticated && (
+              <Link to="/register" className="btn btn-primary btn-lg">Join Now - It's Free</Link>
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Home;
