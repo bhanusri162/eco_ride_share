@@ -1,10 +1,38 @@
-import React, { useState, useCallback } from 'react';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { MAP_DEFAULTS } from '../utils/constants';
-import { LocationIcon } from '../assets/icons';
+import { LocationIcon, SearchIcon } from '../assets/icons';
 import './MapPicker.css';
 
-const MapPicker = ({ onLocationSelect, initialLocation, apiKey }) => {
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+const NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
+
+const MapEvents = ({ onMapClick }) => {
+  useMapEvents({
+    click: onMapClick,
+  });
+  return null;
+};
+
+const MapController = ({ onMapReady }) => {
+  const map = useMap();
+  useEffect(() => {
+    onMapReady(map);
+  }, [map, onMapReady]);
+  return null;
+};
+
+const MapPicker = ({ onLocationSelect, initialLocation }) => {
   const [selectedLocation, setSelectedLocation] = useState(initialLocation || MAP_DEFAULTS.center);
   const [searchQuery, setSearchQuery] = useState('');
   const [map, setMap] = useState(null);
@@ -15,46 +43,75 @@ const MapPicker = ({ onLocationSelect, initialLocation, apiKey }) => {
     borderRadius: '8px',
   };
 
-  const handleMapClick = useCallback((e) => {
-    const lat = e.latLng.lat();
-    const lng = e.latLng.lng();
-    
-    setSelectedLocation({ lat, lng });
-    
-    // Reverse geocode to get address
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-      if (status === 'OK' && results[0]) {
-        onLocationSelect({
-          lat,
-          lng,
-          address: results[0].formatted_address,
-        });
-      }
-    });
-  }, [onLocationSelect]);
+  useEffect(() => {
+    if (initialLocation?.lat && initialLocation?.lng) {
+      setSelectedLocation(initialLocation);
+    }
+  }, [initialLocation]);
 
-  const handleSearch = () => {
+  const reverseGeocode = async (lat, lng) => {
+    const response = await fetch(
+      `${NOMINATIM_BASE_URL}/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`
+    );
+    if (!response.ok) throw new Error('Reverse geocoding failed');
+    return response.json();
+  };
+
+  const forwardGeocode = async (query) => {
+    const response = await fetch(
+      `${NOMINATIM_BASE_URL}/search?format=jsonv2&q=${encodeURIComponent(query)}&limit=1`
+    );
+    if (!response.ok) throw new Error('Location search failed');
+    return response.json();
+  };
+
+  const handleMapClick = async (e) => {
+    const { lat, lng } = e.latlng;
+    setSelectedLocation({ lat, lng });
+
+    try {
+      const result = await reverseGeocode(lat, lng);
+      onLocationSelect({
+        lat,
+        lng,
+        address: result?.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+      });
+    } catch (error) {
+      console.error('Reverse geocoding error:', error);
+      onLocationSelect({
+        lat,
+        lng,
+        address: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+      });
+    }
+  };
+
+  const handleSearch = async () => {
     if (!searchQuery || !map) return;
 
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ address: searchQuery }, (results, status) => {
-      if (status === 'OK' && results[0]) {
-        const location = results[0].geometry.location;
-        const lat = location.lat();
-        const lng = location.lng();
-        
-        setSelectedLocation({ lat, lng });
-        map.panTo({ lat, lng });
-        map.setZoom(15);
-        
-        onLocationSelect({
-          lat,
-          lng,
-          address: results[0].formatted_address,
-        });
+    try {
+      const results = await forwardGeocode(searchQuery);
+      if (!results?.length) {
+        alert('Location not found');
+        return;
       }
-    });
+
+      const location = results[0];
+      const lat = Number(location.lat);
+      const lng = Number(location.lon);
+
+      setSelectedLocation({ lat, lng });
+      map.setView([lat, lng], 15);
+
+      onLocationSelect({
+        lat,
+        lng,
+        address: location.display_name,
+      });
+    } catch (error) {
+      console.error('Search error:', error);
+      alert('Failed to search location');
+    }
   };
 
   const handleGetCurrentLocation = () => {
@@ -65,19 +122,24 @@ const MapPicker = ({ onLocationSelect, initialLocation, apiKey }) => {
           const lng = position.coords.longitude;
           
           setSelectedLocation({ lat, lng });
-          map?.panTo({ lat, lng });
-          map?.setZoom(15);
-          
-          const geocoder = new window.google.maps.Geocoder();
-          geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-            if (status === 'OK' && results[0]) {
+          map?.setView([lat, lng], 15);
+
+          reverseGeocode(lat, lng)
+            .then((result) => {
               onLocationSelect({
                 lat,
                 lng,
-                address: results[0].formatted_address,
+                address: result?.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
               });
-            }
-          });
+            })
+            .catch((error) => {
+              console.error('Reverse geocoding error:', error);
+              onLocationSelect({
+                lat,
+                lng,
+                address: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+              });
+            });
         },
         (error) => {
           console.error('Error getting location:', error);
@@ -89,15 +151,6 @@ const MapPicker = ({ onLocationSelect, initialLocation, apiKey }) => {
     }
   };
 
-  if (!apiKey) {
-    return (
-      <div className="map-placeholder">
-        <LocationIcon />
-        <p>Please configure Google Maps API key</p>
-      </div>
-    );
-  }
-
   return (
     <div className="map-picker">
       <div className="map-search">
@@ -107,27 +160,29 @@ const MapPicker = ({ onLocationSelect, initialLocation, apiKey }) => {
           placeholder="Search for a location..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
         />
         <button type="button" className="btn btn-primary" onClick={handleSearch}>
-          Search
+          <SearchIcon /> Search
         </button>
         <button type="button" className="btn btn-outline" onClick={handleGetCurrentLocation}>
           Use Current Location
         </button>
       </div>
 
-      <LoadScript googleMapsApiKey={apiKey}>
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          center={selectedLocation}
-          zoom={MAP_DEFAULTS.zoom}
-          onClick={handleMapClick}
-          onLoad={setMap}
-        >
-          <Marker position={selectedLocation} />
-        </GoogleMap>
-      </LoadScript>
+      <MapContainer
+        center={[selectedLocation.lat, selectedLocation.lng]}
+        zoom={MAP_DEFAULTS.zoom}
+        style={mapContainerStyle}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={[selectedLocation.lat, selectedLocation.lng]} />
+        <MapEvents onMapClick={handleMapClick} />
+        <MapController onMapReady={setMap} />
+      </MapContainer>
 
       {selectedLocation.address && (
         <div className="selected-location">

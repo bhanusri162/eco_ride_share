@@ -2,6 +2,10 @@
   width: 100%;
 }
 
+.map-picker .leaflet-container {
+  border-radius: 8px;
+}
+
 .map-search {
   display: flex;
   gap: 12px;

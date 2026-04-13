@@ -4,7 +4,7 @@ import { UserIcon, StarIcon } from '../assets/icons';
 import { formatDate, getInitials } from '../utils/helpers';
 import './CommentSection.css';
 
-const CommentSection = ({ comments = [], onAddComment, rideId }) => {
+const CommentSection = ({ comments = [], onAddComment, rideId, allowPosting = true }) => {
   const { user, isAuthenticated } = useApp();
   const [newComment, setNewComment] = useState('');
   const [rating, setRating] = useState(5);
@@ -37,7 +37,7 @@ const CommentSection = ({ comments = [], onAddComment, rideId }) => {
         Comments ({comments.length})
       </h3>
 
-      {isAuthenticated && (
+      {isAuthenticated && allowPosting && (
         <form onSubmit={handleSubmit} className="comment-form">
           <div className="comment-user">
             <div className="user-avatar">

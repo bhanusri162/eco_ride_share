@@ -80,8 +80,6 @@ const CreateRide = () => {
 
   if (loading) return <Loader />;
 
-  const mapApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
   return (
     <div className="create-ride-page">
       <div className="container">
@@ -117,7 +115,6 @@ const CreateRide = () => {
                 <MapPicker
                   onLocationSelect={(location) => handleLocationSelect('pickup', location)}
                   initialLocation={formData.pickup.lat ? formData.pickup : null}
-                  apiKey={mapApiKey}
                 />
                 {errors.pickup && <span className="error-message">{errors.pickup}</span>}
               </div>
@@ -129,7 +126,6 @@ const CreateRide = () => {
                 <MapPicker
                   onLocationSelect={(location) => handleLocationSelect('destination', location)}
                   initialLocation={formData.destination.lat ? formData.destination : null}
-                  apiKey={mapApiKey}
                 />
                 {errors.destination && <span className="error-message">{errors.destination}</span>}
               </div>

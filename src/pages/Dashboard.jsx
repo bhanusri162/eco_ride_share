@@ -82,14 +82,6 @@ const Dashboard = () => {
           </div>
           
           <div className="stat-card">
-            <span>🌿</span>
-            <div>
-              <span className="stat-card-value">{stats?.co2Saved || 0}kg</span>
-              <span className="stat-card-label">CO₂ Saved</span>
-            </div>
-          </div>
-          
-          <div className="stat-card">
             <span>⭐</span>
             <div>
               <span className="stat-card-value">{user?.rating || '4.5'}</span>

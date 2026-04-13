@@ -63,6 +63,17 @@
   gap: 12px;
 }
 
+.logout-btn {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.logout-btn:hover {
+  background: var(--error);
+  border-color: var(--error);
+  color: var(--white);
+}
+
 .mobile-menu-btn {
   display: none;
   padding: 8px;

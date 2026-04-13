@@ -24,11 +24,12 @@ const Header = () => {
           </Link>
 
           <nav className={`nav ${mobileMenuOpen ? 'nav-open' : ''}`}>
-            <Link to="/" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+            {!isAuthenticated && <Link to="/" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Home</Link>}
             <Link to="/rides" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Rides</Link>
             <Link to="/bikes" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Bikes</Link>
             {isAuthenticated && <Link to="/messages" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Messages</Link>}
-            <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About</Link>
+            {isAuthenticated && <Link to="/activity" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Activity</Link>}
+            {!isAuthenticated && <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About</Link>}
           </nav>
 
           <div className="header-actions">
@@ -40,7 +41,7 @@ const Header = () => {
                 <Link to="/profile" className="btn btn-primary btn-sm">
                   {user?.firstName || 'Profile'}
                 </Link>
-                <button onClick={handleLogout} className="btn btn-outline btn-sm">
+                <button onClick={handleLogout} className="btn btn-outline btn-sm logout-btn">
                   Logout
                 </button>
               </div>

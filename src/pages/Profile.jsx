@@ -46,7 +46,6 @@ const Profile = () => {
       setStats({
         totalRides: 0,
         rating: 4.5,
-        co2Saved: 0,
         memberSince: new Date().toISOString(),
       });
     }
@@ -235,13 +234,6 @@ const Profile = () => {
                 </div>
               </div>
               
-              <div className="stat-card">
-                <span className="stat-icon">🌿</span>
-                <div className="stat-info">
-                  <span className="stat-value">{stats?.co2Saved || 0}kg</span>
-                  <span className="stat-label">CO₂ Saved</span>
-                </div>
-              </div>
             </div>
 
             <div className="profile-actions">

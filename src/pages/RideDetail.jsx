@@ -15,6 +15,7 @@ const RideDetail = () => {
   const { user, isAuthenticated, showNotification } = useApp();
   const [ride, setRide] = useState(null);
   const [comments, setComments] = useState([]);
+  const [myRideBooking, setMyRideBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [review, setReview] = useState({ rating: 5, review: '' });
@@ -26,12 +27,26 @@ const RideDetail = () => {
 
   const fetchRideDetails = async () => {
     try {
-      const [rideData, commentsData] = await Promise.all([
+      const requests = [
         apiGet(`${API_ENDPOINTS.RIDES}/${rideId}`),
         apiGet(`${API_ENDPOINTS.COMMENTS}/rides/${rideId}`),
-      ]);
+      ];
+
+      if (isAuthenticated) {
+        requests.push(apiGet(`${API_ENDPOINTS.BOOKINGS}/rides/my`));
+      }
+
+      const [rideData, commentsData, myBookings = []] = await Promise.all(requests);
       setRide(rideData);
       setComments(commentsData);
+      if (isAuthenticated) {
+        const currentRideBooking = myBookings.find(
+          (booking) => Number(booking.ride_id) === Number(rideId)
+        );
+        setMyRideBooking(currentRideBooking || null);
+      } else {
+        setMyRideBooking(null);
+      }
     } catch (error) {
       console.error('Error fetching ride:', error);
       setRide(null);
@@ -48,8 +63,8 @@ const RideDetail = () => {
 
     setBookingLoading(true);
     try {
-      await apiPost(`${API_ENDPOINTS.BOOKINGS}/rides/${rideId}`, {});
-      showNotification('Ride booked successfully!', 'success');
+      const response = await apiPost(`${API_ENDPOINTS.BOOKINGS}/rides/${rideId}`, {});
+      showNotification(response?.message || 'Ride request sent', 'success');
       await fetchRideDetails();
     } catch (error) {
       showNotification(error?.response?.data?.message || 'Failed to book ride', 'error');
@@ -92,11 +107,17 @@ const RideDetail = () => {
     }
   };
 
+  const handleManageRide = () => {
+    navigate('/activity');
+  };
+
   if (loading) return <Loader />;
   if (!ride) return <div className="container">Ride not found</div>;
 
   const isDriver = user?.id === ride.driver?.id;
-  const canBook = !isDriver && ride.availableSeats > 0 && isAuthenticated;
+  const bookingStatus = myRideBooking?.status;
+  const hasBlockingBookingStatus = ['pending', 'confirmed', 'completed'].includes(bookingStatus);
+  const canBook = !isDriver && isAuthenticated && ride.availableSeats > 0 && !hasBlockingBookingStatus;
 
   return (
     <div className="ride-detail-page">
@@ -220,6 +241,7 @@ const RideDetail = () => {
               comments={comments}
               onAddComment={handleAddComment}
               rideId={rideId}
+              allowPosting={!isDriver}
             />
           </div>
 
@@ -236,14 +258,24 @@ const RideDetail = () => {
                 </span>
               </div>
 
-              {canBook && (
+              {!isDriver && isAuthenticated && (
                 <>
                   <button
                     className="btn btn-primary btn-full btn-lg"
                     onClick={handleBookRide}
-                    disabled={bookingLoading}
+                    disabled={bookingLoading || !canBook}
                   >
-                    {bookingLoading ? 'Booking...' : 'Book Now'}
+                    {bookingLoading
+                      ? 'Sending Request...'
+                      : bookingStatus === 'pending'
+                        ? 'Pending Approval'
+                        : bookingStatus === 'confirmed'
+                          ? 'Request Approved'
+                          : bookingStatus === 'completed'
+                            ? 'Ride Completed'
+                            : ride.availableSeats <= 0
+                              ? 'Ride Full'
+                              : 'Request to Join'}
                   </button>
                   <Link
                     to={`/messages?user=${ride.driver?.id}&name=${encodeURIComponent(ride.driver?.name || 'Driver')}&ride=${ride.id}`}
@@ -266,7 +298,9 @@ const RideDetail = () => {
               {isDriver && (
                 <div className="driver-message">
                   <p>This is your ride</p>
-                  <button className="btn btn-outline btn-full">Manage Ride</button>
+                  <button className="btn btn-outline btn-full" onClick={handleManageRide}>
+                    Manage Ride
+                  </button>
                 </div>
               )}
             </div>

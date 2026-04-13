@@ -19,6 +19,23 @@ const BikeDetail = () => {
   });
   const [message, setMessage] = useState('');
 
+  const calculateBikeTotalPrice = ({ totalHours, pricePerHour, pricePerDay }) => {
+    const hourly = Number(pricePerHour) || 0;
+    const daily = Number(pricePerDay) || 0;
+
+    if (!daily) {
+      return totalHours * hourly;
+    }
+
+    const fullDays = Math.floor(totalHours / 24);
+    const remainingHours = totalHours - (fullDays * 24);
+    const hourlyOnly = totalHours * hourly;
+    const mixedPlan = (fullDays * daily) + (remainingHours * hourly);
+    const roundedUpDaysPlan = Math.ceil(totalHours / 24) * daily;
+
+    return Math.min(hourlyOnly, mixedPlan, roundedUpDaysPlan);
+  };
+
   useEffect(() => {
     const fetchBike = async () => {
       try {
@@ -40,7 +57,11 @@ const BikeDetail = () => {
     const end = new Date(formData.endTime);
     const totalHours = Math.max((end - start) / (1000 * 60 * 60), 0);
     if (!Number.isFinite(totalHours) || totalHours <= 0) return null;
-    return totalHours * Number(bike.pricePerHour);
+    return calculateBikeTotalPrice({
+      totalHours,
+      pricePerHour: bike.pricePerHour,
+      pricePerDay: bike.pricePerDay,
+    });
   }, [bike, formData.endTime, formData.startTime]);
 
   const handleChange = (event) => {
