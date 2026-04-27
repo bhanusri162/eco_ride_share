@@ -10,28 +10,46 @@ const Login = () => {
   const { login, loading } = useApp();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState('');
+
+  const validateForm = () => {
+    const email = formData.email.trim();
+    const newErrors = {};
+
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Enter a valid email address';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: '' });
+    setSubmitError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const newErrors = {};
-    if (!formData.email) newErrors.email = 'Email is required';
-    if (!formData.password) newErrors.password = 'Password is required';
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+
+    if (!validateForm()) return;
+
+    const result = await login(formData.email.trim(), formData.password);
+    if (result.success) {
+      navigate('/dashboard');
       return;
     }
 
-    const result = await login(formData.email, formData.password);
-    if (result.success) {
-      navigate('/dashboard');
-    }
+    setSubmitError(result.error || 'Login failed');
   };
 
   if (loading) return <Loader fullScreen />;
@@ -71,6 +89,12 @@ const Login = () => {
               <p className="auth-subtitle">Access your commuter dashboard and continue where you left off.</p>
 
               <form onSubmit={handleSubmit} className="auth-form">
+                {submitError && (
+                  <div className="auth-alert auth-alert-error" role="alert">
+                    {submitError}
+                  </div>
+                )}
+
                 <div className="input-group">
                   <label className="input-label">Email</label>
                   <input
@@ -80,6 +104,7 @@ const Login = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Enter your email"
+                    required
                   />
                   {errors.email && <span className="error-message">{errors.email}</span>}
                 </div>
@@ -93,6 +118,8 @@ const Login = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Enter your password"
+                    minLength="6"
+                    required
                   />
                   {errors.password && <span className="error-message">{errors.password}</span>}
                 </div>

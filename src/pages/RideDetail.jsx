@@ -203,6 +203,24 @@ const RideDetail = () => {
                 </div>
               )}
 
+              {isDriver && (
+                <div className="ride-passengers">
+                  <h3>Approved Passengers</h3>
+                  {ride.passengers?.length ? (
+                    <div className="passenger-list">
+                      {ride.passengers.map((passenger) => (
+                        <div key={passenger.id} className="passenger-item">
+                          <strong>{passenger.name}</strong>
+                          <span>{passenger.seats} seat(s)</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p>No approved passengers yet.</p>
+                  )}
+                </div>
+              )}
+
               {!isDriver && isAuthenticated && (
                 <div className="ride-notes">
                   <h3>Rate This Commuter</h3>

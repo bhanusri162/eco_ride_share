@@ -70,11 +70,28 @@ const MyActivity = () => {
               <Link to="/rides/create">Create another ride</Link>
             </div>
             {data.postedRides.length ? data.postedRides.map((ride) => (
-              <Link key={ride.ride_id} to={`/rides/${ride.ride_id}`} className="activity-item">
-                <strong>{ride.pickup_address} → {ride.destination_address}</strong>
-                <span>{formatDate(ride.ride_date)} at {formatTime(ride.ride_date, ride.ride_time)}</span>
-                <span>{ride.available_seats}/{ride.total_seats} seats left</span>
-              </Link>
+              <div key={ride.ride_id} className="activity-item">
+                <Link to={`/rides/${ride.ride_id}`} className="activity-item-link">
+                  <strong>{ride.pickup_address} → {ride.destination_address}</strong>
+                  <span>{formatDate(ride.ride_date)} at {formatTime(ride.ride_date, ride.ride_time)}</span>
+                  <span>{ride.available_seats}/{ride.total_seats} seats left</span>
+                </Link>
+
+                <div className="approved-passengers">
+                  <strong>Approved passengers</strong>
+                  {ride.passengers?.length ? (
+                    ride.passengers.map((passenger) => (
+                      <div key={passenger.booking_id} className="passenger-row">
+                        <span>{passenger.first_name} {passenger.last_name}</span>
+                        <span>{passenger.seats_booked} seat(s) • {formatCurrency(passenger.total_price)}</span>
+                        {passenger.mobile_no && <span>{passenger.mobile_no}</span>}
+                      </div>
+                    ))
+                  ) : (
+                    <span>No approved passengers yet.</span>
+                  )}
+                </div>
+              </div>
             )) : <p>No rides posted yet.</p>}
           </section>
 

@@ -164,6 +164,40 @@
   line-height: 1.6;
 }
 
+.ride-passengers {
+  padding-top: 20px;
+  border-top: 1px solid var(--gray-200);
+}
+
+.ride-passengers h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.ride-passengers p {
+  color: var(--gray-600);
+}
+
+.passenger-list {
+  display: grid;
+  gap: 10px;
+}
+
+.passenger-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: var(--gray-50);
+}
+
+.passenger-item span {
+  color: var(--gray-600);
+  white-space: nowrap;
+}
+
 .rating-form {
   margin-top: 16px;
 }
